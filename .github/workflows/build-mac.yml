@@ -1,0 +1,43 @@
+# Nome do Workflow
+name: Build macOS App
+
+on:
+  workflow_dispatch: # Gatilho manual
+
+jobs:
+  build-macos:
+    # A "Fábrica": Uma máquina macOS virtual novinha
+    runs-on: macos-latest
+
+    steps:
+      # Passo 1: Obter o código
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # Passo 2: Configurar o Python
+      - name: Setup do Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      # Passo 3: Instalar dependências
+      - name: Instalar dependências
+        run: |
+          pip install -r requirements.txt
+      
+      # Passo 4: Rodar o PyInstaller (A "Mágica" do Mac)
+      # Nota: A sintaxe do PyInstaller no Mac/Linux usa ':' como separador
+      - name: Construir o executável com PyInstaller
+        run: |
+          pyinstaller --onefile \
+            --add-data "templates:templates" \
+            --add-data "static:static" \
+            --name kanban-macos app.py
+      
+      # Passo 5: A "Fuga" (Disponibilizar o binário para download)
+      - name: Upload do Artefato (o binário universal)
+        uses: actions/upload-artifact@v4
+        with:
+          name: kanban-macos-binary
+          path: dist/kanban-macos
