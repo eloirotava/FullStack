@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <h2>Minhas tarefas</h2>
+      <p class="text-muted small mb-0">
+        Demo full stack: Flask + SQLite + Bootstrap + API JSON.
+      </p>
+    </div>
+    <div class="col-md-6 text-end">
+      <button id="load-api" class="btn btn-outline-secondary btn-sm">
+        Ver dados da API (/api/tasks)
+      </button>
+    </div>
+  </div>
+
+  <!-- Form de criação de tarefa -->
+  <form method="post" action="{{ url_for('create_task') }}" class="card card-body mb-4">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-4">
+        <input
+          type="text"
+          name="title"
+          class="form-control"
+          placeholder="Título da tarefa"
+          required
+        >
+      </div>
+      <div class="col-md-4">
+        <input
+          type="text"
+          name="description"
+          class="form-control"
+          placeholder="Descrição (opcional)"
+        >
+      </div>
+      <div class="col-md-2">
+        <select name="status" class="form-select">
+          <option value="todo">A fazer</option>
+          <option value="doing">Fazendo</option>
+          <option value="done">Feito</option>
+        </select>
+      </div>
+      <div class="col-md-2 d-grid">
+        <button class="btn btn-primary" type="submit">Adicionar</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Kanban -->
+  <div class="row g-3">
+    {% set columns = [
+      ('todo', 'A fazer'),
+      ('doing', 'Fazendo'),
+      ('done', 'Feito')
+    ] %}
+
+    {% for status, label in columns %}
+      <div class="col-md-4">
+        <div class="card kanban-column">
+          <div class="card-header fw-bold">
+            {{ label }}
+          </div>
+          <div class="card-body">
+            {% for task in tasks if task.status == status %}
+              <div class="card mb-2 shadow-sm">
+                <div class="card-body p-2">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="fw-semibold">{{ task.title }}</div>
+                      {% if task.description %}
+                        <div class="small text-muted">
+                          {{ task.description }}
+                        </div>
+                      {% endif %}
+                      <div class="small text-muted">
+                        {{ task.created_at.strftime('%d/%m/%Y %H:%M') }}
+                      </div>
+                    </div>
+                    <form method="post"
+                          action="{{ url_for('delete_task', task_id=task.id) }}">
+                      <button class="btn btn-sm btn-outline-danger" type="submit">
+                        &times;
+                      </button>
+                    </form>
+                  </div>
+
+                  <!-- mudar status -->
+                  <form method="post"
+                        action="{{ url_for('update_task', task_id=task.id) }}"
+                        class="mt-2 d-flex gap-2">
+                    <!-- manter título e descrição -->
+                    <input type="hidden" name="title" value="{{ task.title }}">
+                    <input type="hidden" name="description" value="{{ task.description or '' }}">
+                    <select name="status"
+                            class="form-select form-select-sm"
+                            onchange="this.form.submit()">
+                      <option value="todo"  {% if task.status == 'todo' %}selected{% endif %}>
+                        A fazer
+                      </option>
+                      <option value="doing" {% if task.status == 'doing' %}selected{% endif %}>
+                        Fazendo
+                      </option>
+                      <option value="done"  {% if task.status == 'done' %}selected{% endif %}>
+                        Feito
+                      </option>
+                    </select>
+                  </form>
+                </div>
+              </div>
+            {% else %}
+              <p class="text-muted small mb-0">Nenhuma tarefa aqui.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- saída da API -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <pre id="api-output"
+           class="small bg-dark text-light p-2 rounded d-none"
+           style="max-height: 300px; overflow: auto;">
+      </pre>
+    </div>
+  </div>
+</div>
+{% endblock %}

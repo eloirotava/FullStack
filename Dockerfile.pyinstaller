@@ -1,0 +1,31 @@
+# Fase de build: python + pyinstaller
+FROM python:3.12-slim AS build
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt pyinstaller
+
+COPY . .
+
+# gera o executável (onefile, incluindo templates e static)
+RUN pyinstaller --onefile \
+    --add-data "templates:templates" \
+    --add-data "static:static" \
+    --name kanban app.py
+
+
+# Fase final: usa a MESMA base (python:3.12-slim) para garantir glibc compatível
+FROM python:3.12-slim AS runtime
+
+WORKDIR /app
+
+COPY --from=build /app/dist/kanban /usr/local/bin/kanban
+
+EXPOSE 5000
+
+CMD ["kanban"]

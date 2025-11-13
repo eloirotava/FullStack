@@ -1,0 +1,31 @@
+# Virtualenv
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# SQLite / dados locais
+instance/
+*.db
+
+# PyInstaller / build artefacts
+build/
+*.spec
+
+# Logs
+*.log
+
+# IDE / editor
+.vscode/
+.idea/
+*.code-workspace
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Docker lixo local
+*.pid
