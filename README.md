@@ -44,4 +44,6 @@ This repo contains a simple **Kanban-style task manager** built with:
   ```json
   {
     "title": "My task",
-    "des
+    "description": "Optional",
+    "status": "todo"
+  }
