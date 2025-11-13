@@ -37,9 +37,9 @@ jobs:
       # É o mesmo comando do seu Dockerfile, mas em formato Windows
       - name: Construir o executável com PyInstaller
         run: |
-          pyinstaller --onefile ^
-            --add-data "templates;templates" ^
-            --add-data "static;static" ^
+          pyinstaller --onefile `
+            --add-data "templates;templates" `
+            --add-data "static;static" `
             --name kanban-windows app.py
       
       # Passo 5: A "Fuga" (Disponibilizar o .exe para download)
